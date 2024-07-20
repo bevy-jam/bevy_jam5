@@ -1,6 +1,6 @@
 [package]
 name = "bevy_jam5"
-authors = ["KirmesBude <kirmesbude@gmail.com>"]
+authors = ["KirmesBude <kirmesbude@gmail.com>"] #TODO: Fill out
 version = "0.1.0"
 edition = "2021"
 
