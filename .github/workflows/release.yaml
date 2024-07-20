@@ -24,11 +24,11 @@ env:
   # Comment this out to disable.
   ITCH_TARGET: kirmesbude/bevy_jam5
   # The organization or author that owns the rights to the game.
-  OWNER: 
+  OWNER:
   # The path to the assets directory.
   ASSETS_DIR: assets
   # Whether packages produced by this workflow should be uploaded to the Github release.
-  UPLOAD_PACKAGES_TO_GITHUB_RELEASE: true
+  UPLOAD_PACKAGES_TO_GITHUB_RELEASE: false
   # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
   # https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-storage-and-bandwidth-usage
   USE_GIT_LFS: false
