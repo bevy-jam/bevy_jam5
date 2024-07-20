@@ -75,9 +75,13 @@ enum AppSet {
 }
 
 fn spawn_camera(mut commands: Commands) {
+    let mut camera = Camera2dBundle::default();
+    camera.transform.scale /= 5.;
+    camera.transform.translation.x = 50.;
+    camera.transform.translation.y = 40.;
     commands.spawn((
         Name::new("Camera"),
-        Camera2dBundle::default(),
+        camera,
         // Render all UI to this camera.
         // Not strictly necessary since we only use one camera,
         // but if we don't use this component, our UI will disappear as soon
