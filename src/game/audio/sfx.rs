@@ -1,23 +1,19 @@
 use bevy::{audio::PlaybackMode, prelude::*};
 use rand::seq::SliceRandom;
 
-use crate::game::assets::{HandleMap, SfxKey};
+use crate::game::assets::SfxAssets;
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(play_sfx);
 }
 
-fn play_sfx(
-    trigger: Trigger<PlaySfx>,
-    mut commands: Commands,
-    sfx_handles: Res<HandleMap<SfxKey>>,
-) {
-    let sfx_key = match trigger.event() {
-        PlaySfx::Key(key) => *key,
-        PlaySfx::RandomStep => random_step(),
+fn play_sfx(trigger: Trigger<PlaySfx>, mut commands: Commands, sfx_assets: Res<SfxAssets>) {
+    let sfx = match trigger.event() {
+        PlaySfx::Handle(handle) => handle.clone_weak(),
+        PlaySfx::RandomStep => random_step(&sfx_assets),
     };
     commands.spawn(AudioSourceBundle {
-        source: sfx_handles[&sfx_key].clone_weak(),
+        source: sfx,
         settings: PlaybackSettings {
             mode: PlaybackMode::Despawn,
             ..default()
@@ -28,13 +24,18 @@ fn play_sfx(
 /// Trigger this event to play a single sound effect.
 #[derive(Event)]
 pub enum PlaySfx {
-    Key(SfxKey),
+    Handle(Handle<AudioSource>),
     RandomStep,
 }
 
-fn random_step() -> SfxKey {
-    [SfxKey::Step1, SfxKey::Step2, SfxKey::Step3, SfxKey::Step4]
-        .choose(&mut rand::thread_rng())
-        .copied()
-        .unwrap()
+fn random_step(sfx_assets: &SfxAssets) -> Handle<AudioSource> {
+    [
+        &sfx_assets.step1,
+        &sfx_assets.step2,
+        &sfx_assets.step3,
+        &sfx_assets.step4,
+    ]
+    .choose(&mut rand::thread_rng())
+    .unwrap()
+    .clone_weak()
 }

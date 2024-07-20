@@ -1,10 +1,16 @@
 use bevy::prelude::*;
 
-use crate::game::{assets::SfxKey, audio::sfx::PlaySfx};
+use crate::{
+    game::{assets::SfxAssets, audio::sfx::PlaySfx},
+    screen::Screen,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
-    app.add_systems(Update, (apply_interaction_palette, trigger_interaction_sfx));
+    app.add_systems(
+        Update,
+        (apply_interaction_palette, trigger_interaction_sfx).run_if(in_state(Screen::Title)),
+    );
 }
 
 pub type InteractionQuery<'w, 's, T> =
@@ -35,11 +41,16 @@ fn apply_interaction_palette(
 fn trigger_interaction_sfx(
     mut interactions: Query<&Interaction, Changed<Interaction>>,
     mut commands: Commands,
+    sfx_asssets: Res<SfxAssets>,
 ) {
     for interaction in &mut interactions {
         match interaction {
-            Interaction::Hovered => commands.trigger(PlaySfx::Key(SfxKey::ButtonHover)),
-            Interaction::Pressed => commands.trigger(PlaySfx::Key(SfxKey::ButtonPress)),
+            Interaction::Hovered => {
+                commands.trigger(PlaySfx::Handle(sfx_asssets.button_hover.clone_weak()))
+            }
+            Interaction::Pressed => {
+                commands.trigger(PlaySfx::Handle(sfx_asssets.button_press.clone_weak()))
+            }
             _ => (),
         }
     }
