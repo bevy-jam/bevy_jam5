@@ -5,7 +5,7 @@ pub(super) fn plugin(_app: &mut App) {}
 
 #[derive(AssetCollection, Resource)]
 pub struct ImageAssets {
-    #[asset(path = "textures/castle.png")]
+    #[asset(path = "images/ducky.png")]
     #[asset(image(sampler = nearest))]
     pub ducky: Handle<Image>,
 }
