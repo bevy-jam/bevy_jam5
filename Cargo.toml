@@ -15,6 +15,7 @@ log = { version = "0.4", features = [
 rand = "0.8"
 
 bevy-inspector-egui = { version = "0.25", optional = true }
+avian2d = "0.1"
 
 [features]
 default = [

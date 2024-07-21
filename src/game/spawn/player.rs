@@ -1,13 +1,10 @@
 //! Spawn the player.
 
+use avian2d::{math::Scalar, prelude::*};
 use bevy::prelude::*;
 
 use crate::{
-    game::{
-        animation::PlayerAnimation,
-        assets::ImageAssets,
-        movement::{Movement, MovementController, WrapWithinWindow},
-    },
+    game::{animation::PlayerAnimation, assets::ImageAssets},
     screen::Screen,
 };
 
@@ -49,10 +46,9 @@ fn spawn_player(
             layout: texture_atlas_layout.clone(),
             index: player_animation.get_atlas_index(),
         },
-        MovementController::default(),
-        Movement { speed: 420.0 },
-        WrapWithinWindow,
         player_animation,
+        RigidBody::Dynamic,
+        Collider::circle(8.0 as Scalar),
         StateScoped(Screen::Playing),
     ));
 }
