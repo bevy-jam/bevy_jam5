@@ -28,7 +28,7 @@ fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // A texture atlas is a way to split one image with a grid into multiple sprites.
     // By attaching it to a [`SpriteBundle`] and providing an index, we can specify which section of the image we want to see.
@@ -44,8 +44,8 @@ fn spawn_player(
         StateScoped(Screen::Playing),
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(4.))),
-            material: materials.add(Color::srgba(1.,0.2,0.05,1.)),
-            transform: Transform::from_translation(Vec3::new(0.,0.,1.)),
+            material: materials.add(Color::srgba(1., 0.2, 0.05, 1.)),
+            transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
             ..default()
         },
     ));
