@@ -14,7 +14,7 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
     app.add_systems(
-        Update,
+        FixedUpdate,
         camera_follow_player.run_if(in_state(Screen::Playing)),
     );
 }

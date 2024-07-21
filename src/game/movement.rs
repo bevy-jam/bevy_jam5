@@ -12,14 +12,17 @@ use crate::AppSet;
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
     app.add_systems(
-        Update,
+        FixedUpdate,
         record_movement_controller.in_set(AppSet::RecordInput),
     );
 
     // Apply movement based on controls.
     app.register_type::<WrapWithinWindow>();
-    app.add_systems(Update, update_gravity.in_set(AppSet::Update));
-    app.add_systems(Update, (wrap_within_window).chain().in_set(AppSet::Update));
+    app.add_systems(FixedPreUpdate, update_gravity.in_set(AppSet::Update));
+    app.add_systems(
+        FixedUpdate,
+        (wrap_within_window).chain().in_set(AppSet::Update),
+    );
 }
 
 fn record_movement_controller(
