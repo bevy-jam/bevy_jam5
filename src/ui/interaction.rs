@@ -9,7 +9,9 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
     app.add_systems(
         Update,
-        (apply_interaction_palette, trigger_interaction_sfx).run_if(in_state(Screen::Title)),
+        (apply_interaction_palette, trigger_interaction_sfx)
+            .run_if(not(in_state(Screen::Splash)))
+            .run_if(not(in_state(Screen::Loading))),
     );
 }
 
