@@ -8,6 +8,7 @@ use crate::screen::Screen;
 use super::player::SpawnPlayer;
 
 pub(super) fn plugin(app: &mut App) {
+    app.register_type::<Ground>();
     app.observe(spawn_level);
 }
 
@@ -23,6 +24,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
         },
         RigidBody::Static,
         Collider::circle(2000.0 as Scalar),
+        Ground,
         StateScoped(Screen::Playing),
     ));
 
@@ -30,3 +32,6 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
     // but add things like walls etc. here.
     commands.trigger(SpawnPlayer);
 }
+
+#[derive(Default, Debug, Component, Reflect)]
+pub struct Ground;

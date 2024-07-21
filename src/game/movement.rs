@@ -26,6 +26,7 @@ fn record_movement_controller(
 ) {
     // Collect directional input.
     let mut intent = Vec2::ZERO;
+    // TODO: This does not really work because movement needs to depend on the "orientation" of the player
     if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
         intent.y += 1.0;
     }
@@ -45,7 +46,7 @@ fn record_movement_controller(
 
     // Apply movement intent to controllers.
     for mut velocity in &mut controller_query {
-        velocity.0 = intent * 100.0;
+        velocity.0 += intent * 100.0; //TODO: This does not really work, because we never take away the velocity (e.g. collision, damping)
     }
 }
 

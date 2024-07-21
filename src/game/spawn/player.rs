@@ -4,13 +4,18 @@ use avian2d::{math::Scalar, prelude::*};
 use bevy::prelude::*;
 
 use crate::{
-    game::{animation::PlayerAnimation, assets::ImageAssets},
+    game::{animation::PlayerAnimation, assets::ImageAssets, physics::GravityController},
     screen::Screen,
 };
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_player);
     app.register_type::<Player>();
+
+    app.add_systems(
+        Update,
+        camera_follow_player.run_if(in_state(Screen::Playing)),
+    );
 }
 
 #[derive(Event, Debug)]
@@ -49,6 +54,22 @@ fn spawn_player(
         player_animation,
         RigidBody::Dynamic,
         Collider::circle(8.0 as Scalar),
+        GravityController(10000.0),
         StateScoped(Screen::Playing),
     ));
+}
+
+//TODO: Maybe it is better to spawn a new camera as child of player
+fn camera_follow_player(
+    mut camera_transform: Query<&mut Transform, With<Camera>>,
+    player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
+) {
+    //TODO: This breaks going back to the menu
+    //TODO: Also does not consider rotation
+    let player_transform = player_transform.single();
+
+    let mut camera_transform = camera_transform.single_mut();
+
+    camera_transform.translation.x = player_transform.translation.x;
+    camera_transform.translation.y = player_transform.translation.y;
 }
