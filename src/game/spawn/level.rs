@@ -16,12 +16,17 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Event, Debug)]
 pub struct SpawnLevel;
 
-fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>, mut meshes: ResMut<Assets<Mesh>>) {
+fn spawn_level(
+    _trigger: Trigger<SpawnLevel>,
+    mut commands: Commands,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
     commands.spawn((
         Name::new("Ground"),
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(1000.))),
-            material: materials.add(Color::srgba(0.5,0.5,0.5,1.)),
+            material: materials.add(Color::srgba(0.5, 0.5, 0.5, 1.)),
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
             ..default()
         },
@@ -34,7 +39,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands, mut materi
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(100.))),
-            material: materials.add(Color::srgba(1.,0.5,0.5,1.)),
+            material: materials.add(Color::srgba(1., 0.5, 0.5, 1.)),
             transform: Transform::from_xyz(800.0, 0.0, 1.0),
             ..default()
         },
@@ -44,7 +49,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands, mut materi
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(100.))),
-            material: materials.add(Color::srgba(0.5,0.5,1.,1.)),
+            material: materials.add(Color::srgba(0.5, 0.5, 1., 1.)),
             transform: Transform::from_xyz(-800.0, 0.0, 1.0),
             ..default()
         },
@@ -54,7 +59,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands, mut materi
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(100.))),
-            material: materials.add(Color::srgba(0.5,1.,0.5,1.)),
+            material: materials.add(Color::srgba(0.5, 1., 0.5, 1.)),
             transform: Transform::from_xyz(0.0, 800., 1.0),
             ..default()
         },
@@ -64,7 +69,7 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands, mut materi
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(100.))),
-            material: materials.add(Color::srgba(1.,1.,1.,1.)),
+            material: materials.add(Color::srgba(1., 1., 1., 1.)),
             transform: Transform::from_xyz(0.0, -800., 1.0),
             ..default()
         },

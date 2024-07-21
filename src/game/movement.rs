@@ -6,8 +6,8 @@
 use avian2d::prelude::{Gravity, LinearVelocity};
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::AppSet;
 use crate::game::spawn::player::{Player, PlayerSpeed};
+use crate::AppSet;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
@@ -19,7 +19,10 @@ pub(super) fn plugin(app: &mut App) {
     // Apply movement based on controls.
     app.register_type::<WrapWithinWindow>();
     app.add_systems(FixedPreUpdate, update_gravity.in_set(AppSet::Update));
-    app.add_systems(FixedUpdate, (wrap_within_window).chain().in_set(AppSet::Update));
+    app.add_systems(
+        FixedUpdate,
+        (wrap_within_window).chain().in_set(AppSet::Update),
+    );
 }
 
 fn record_movement_controller(
@@ -69,10 +72,7 @@ fn wrap_within_window(
     }
 }
 
-fn update_gravity(
-    mut gravity: ResMut<Gravity>,
-    query: Query<&Transform, With<Player>>
-) {
+fn update_gravity(mut gravity: ResMut<Gravity>, query: Query<&Transform, With<Player>>) {
     if let Ok(t) = query.get_single() {
         gravity.0 = -t.translation.xy();
     }

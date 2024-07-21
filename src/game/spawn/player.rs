@@ -35,7 +35,7 @@ fn spawn_player(
     image_assets: Res<ImageAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut meshes: ResMut<Assets<Mesh>>
+    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     // A texture atlas is a way to split one image with a grid into multiple sprites.
     // By attaching it to a [`SpriteBundle`] and providing an index, we can specify which section of the image we want to see.
@@ -89,7 +89,7 @@ fn camera_follow_player(
     camera_transform.translation.y = player_transform.translation.y;
     let mut angle = Vec3::Y.angle_between(player_transform.translation);
     if player_transform.translation.x > 0. {
-        angle = std::f32::consts::PI*2. - angle;
+        angle = std::f32::consts::PI * 2. - angle;
     }
 
     camera_transform.rotation = Quat::from_rotation_z(angle);
