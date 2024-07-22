@@ -7,7 +7,11 @@ mod ui;
 use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
-    prelude::*, render::{settings::{PowerPreference, RenderCreation, WgpuSettings}, RenderPlugin},
+    prelude::*,
+    render::{
+        settings::{PowerPreference, RenderCreation, WgpuSettings},
+        RenderPlugin,
+    },
 };
 
 pub struct AppPlugin;
