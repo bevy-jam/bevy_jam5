@@ -15,7 +15,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Default, Debug, Component, Reflect)]
 pub struct GravityController(pub f32);
 
-/// Applies [`ControllerGravity`] to character controllers.
+/// Applies [`GravityController`] to character controllers.
 fn apply_gravity(
     time: Res<Time>,
     mut controllers: Query<(&Transform, &mut LinearVelocity, &GravityController)>,
