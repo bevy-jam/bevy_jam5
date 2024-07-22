@@ -3,78 +3,55 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
+use avian2d::prelude::{Gravity, LinearVelocity};
 use bevy::{prelude::*, window::PrimaryWindow};
 
+use crate::game::spawn::player::{Player, PlayerSpeed};
 use crate::AppSet;
 
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
-    app.register_type::<MovementController>();
     app.add_systems(
-        Update,
+        FixedUpdate,
         record_movement_controller.in_set(AppSet::RecordInput),
     );
 
     // Apply movement based on controls.
-    app.register_type::<(Movement, WrapWithinWindow)>();
+    app.register_type::<WrapWithinWindow>();
+    app.add_systems(FixedPreUpdate, update_gravity.in_set(AppSet::Update));
     app.add_systems(
-        Update,
-        (apply_movement, wrap_within_window)
-            .chain()
-            .in_set(AppSet::Update),
+        FixedUpdate,
+        (wrap_within_window).chain().in_set(AppSet::Update),
     );
 }
 
-#[derive(Component, Reflect, Default)]
-#[reflect(Component)]
-pub struct MovementController(pub Vec2);
-
 fn record_movement_controller(
     input: Res<ButtonInput<KeyCode>>,
-    mut controller_query: Query<&mut MovementController>,
+    mut controller_query: Query<(&mut LinearVelocity, &PlayerSpeed, &Transform)>,
 ) {
     // Collect directional input.
-    let mut intent = Vec2::ZERO;
-    if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
-        intent.y += 1.0;
-    }
-    if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-        intent.y -= 1.0;
-    }
+    let mut horizontal = 0.;
+    // TODO: This does not really work because movement needs to depend on the "orientation" of the player
     if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
-        intent.x -= 1.0;
+        horizontal -= 1.0;
     }
     if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
-        intent.x += 1.0;
+        horizontal += 1.0;
     }
 
-    // Normalize so that diagonal movement has the same speed as
-    // horizontal and vertical movement.
-    let intent = intent.normalize_or_zero();
+    let mut jump = false;
+
+    if input.just_pressed(KeyCode::Space) {
+        jump = true;
+    }
 
     // Apply movement intent to controllers.
-    for mut controller in &mut controller_query {
-        controller.0 = intent;
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct Movement {
-    /// Since Bevy's default 2D camera setup is scaled such that
-    /// one unit is one pixel, you can think of this as
-    /// "How many pixels per second should the player move?"
-    /// Note that physics engines may use different unit/pixel ratios.
-    pub speed: f32,
-}
-
-fn apply_movement(
-    time: Res<Time>,
-    mut movement_query: Query<(&MovementController, &Movement, &mut Transform)>,
-) {
-    for (controller, movement, mut transform) in &mut movement_query {
-        let velocity = movement.speed * controller.0;
-        transform.translation += velocity.extend(0.0) * time.delta_seconds();
+    for (mut velocity, speed, transform) in &mut controller_query {
+        let normal = -transform.translation.xy().perp().normalize();
+        velocity.0 += normal * horizontal * speed.0; //TODO: This does not really work, because we never take away the velocity (e.g. collision, damping)
+        if jump {
+            velocity.0 += transform.translation.xy().normalize() * 500.;
+        }
     }
 }
 
@@ -92,5 +69,11 @@ fn wrap_within_window(
         let position = transform.translation.xy();
         let wrapped = (position + half_size).rem_euclid(size) - half_size;
         transform.translation = wrapped.extend(transform.translation.z);
+    }
+}
+
+fn update_gravity(mut gravity: ResMut<Gravity>, query: Query<&Transform, With<Player>>) {
+    if let Ok(t) = query.get_single() {
+        gravity.0 = -t.translation.xy();
     }
 }

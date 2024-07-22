@@ -8,6 +8,10 @@ use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
     prelude::*,
+    render::{
+        settings::{PowerPreference, RenderCreation, WgpuSettings},
+        RenderPlugin,
+    },
 };
 
 pub struct AppPlugin;
@@ -42,6 +46,13 @@ impl Plugin for AppPlugin {
                         ..default()
                     }
                     .into(),
+                    ..default()
+                })
+                .set(RenderPlugin {
+                    render_creation: RenderCreation::Automatic(WgpuSettings {
+                        power_preference: PowerPreference::LowPower, // TODO: consider switching back to default when we release, or allow configuration
+                        ..default()
+                    }),
                     ..default()
                 })
                 .set(AudioPlugin {
