@@ -4,6 +4,7 @@ use avian2d::{math::Scalar, prelude::*};
 use bevy::prelude::*;
 use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle};
 
+use crate::game::character_controller::CharacterControllerBundle;
 use crate::{
     game::{animation::PlayerAnimation, assets::ImageAssets, physics::GravityController},
     screen::Screen,
@@ -65,12 +66,15 @@ fn spawn_player(
         //     index: player_animation.get_atlas_index(),
         // },
         // player_animation,
-        RigidBody::Dynamic,
-        Collider::circle(8.0 as Scalar),
-        GravityScale(1.),
+        CharacterControllerBundle::new(Collider::circle(8.0 as Scalar)).with_movement(
+            2000.0,
+            0.9,
+            250.0,
+            std::f32::consts::PI * 0.45,
+        ),
+        // GravityScale(1.),
         // GravityController(10000.0),
         StateScoped(Screen::Playing),
-        Friction::new(0.5),
     ));
 }
 
