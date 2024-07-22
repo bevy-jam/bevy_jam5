@@ -4,8 +4,9 @@ use avian2d::{math::Scalar, prelude::*};
 use bevy::prelude::*;
 use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle};
 
+use crate::game::physics::character_controller::CharacterControllerBundle;
 use crate::{
-    game::{animation::PlayerAnimation, assets::ImageAssets, physics::GravityController},
+    game::{animation::PlayerAnimation, assets::ImageAssets},
     screen::Screen,
 };
 
@@ -29,9 +30,6 @@ pub struct SpawnPlayer;
 #[reflect(Component)]
 pub struct Player;
 
-#[derive(Component, Copy, Clone)]
-pub struct PlayerSpeed(pub f32);
-
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,
@@ -51,29 +49,22 @@ fn spawn_player(
     commands.spawn((
         Name::new("Player"),
         Player,
-        PlayerSpeed(1.),
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(8.))),
             material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0., 1050., 0.),
             ..default()
         },
-        // SpriteBundle {
-        //     texture: image_assets.ducky.clone_weak(),
-        //     transform: Transform::from_scale(Vec2::splat(8.0).extend(1.0)),
-        //     ..Default::default()
-        // },
-        // TextureAtlas {
-        //     layout: texture_atlas_layout.clone(),
-        //     index: player_animation.get_atlas_index(),
-        // },
-        // player_animation,
-        RigidBody::Dynamic,
-        Collider::circle(8.0 as Scalar),
+        CharacterControllerBundle::new(Collider::circle(8.0 as Scalar)).with_movement(
+            4000.0,
+            0.92,
+            400.0,
+            (30.0 as Scalar).to_radians(),
+        ),
+        Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
+        Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
+        ColliderDensity(1.5),
         GravityScale(1.),
-        // GravityController(10000.0),
-        StateScoped(Screen::Playing),
-        Friction::new(0.5),
     ));
 }
 
