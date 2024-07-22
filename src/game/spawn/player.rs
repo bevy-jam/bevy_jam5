@@ -14,8 +14,11 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
     app.add_systems(
-        FixedUpdate,
-        camera_follow_player.run_if(in_state(Screen::Playing)),
+        FixedPostUpdate,
+        camera_follow_player
+            .run_if(in_state(Screen::Playing))
+            .after(PhysicsSet::Sync)
+            .before(TransformSystem::TransformPropagate),
     );
 }
 
