@@ -12,7 +12,7 @@ pub(super) fn plugin(app: &mut App) {
             apply_movement_damping,
         )
             .chain(),
-    );
+    ).register_type::<MovementBundle>();
 }
 
 /// An event sent for a movement input action.
@@ -23,7 +23,7 @@ pub enum MovementAction {
 }
 
 /// A marker component indicating that an entity is using a character controller.
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct CharacterController;
 
 /// A marker component indicating that an entity is on the ground.
@@ -31,29 +31,30 @@ pub struct CharacterController;
 #[component(storage = "SparseSet")]
 pub struct Grounded;
 /// The acceleration used for character movement.
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct MovementAcceleration(Scalar);
 
 /// The damping factor used for slowing down movement.
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct MovementDampingFactor(Scalar);
 
 /// The strength of a jump.
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct JumpImpulse(Scalar);
 
 /// The maximum angle a slope can have for a character controller
 /// to be able to climb and jump. If the slope is steeper than this angle,
 /// the character will slide down.
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct MaxSlopeAngle(Scalar);
 
 /// A bundle that contains the components needed for a basic
 /// kinematic character controller.
-#[derive(Bundle)]
+#[derive(Bundle, Reflect)]
 pub struct CharacterControllerBundle {
     character_controller: CharacterController,
     rigid_body: RigidBody,
+    #[reflect(ignore)]
     collider: Collider,
     ground_caster: ShapeCaster,
     locked_axes: LockedAxes,
@@ -61,7 +62,7 @@ pub struct CharacterControllerBundle {
 }
 
 /// A bundle that contains components for character movement.
-#[derive(Bundle)]
+#[derive(Bundle, Reflect)]
 pub struct MovementBundle {
     acceleration: MovementAcceleration,
     damping: MovementDampingFactor,
