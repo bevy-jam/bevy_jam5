@@ -5,13 +5,9 @@ mod screen;
 mod ui;
 
 use bevy::{
-    asset::AssetMetaCheck,
-    audio::{AudioPlugin, Volume},
-    prelude::*,
-    render::{
-        settings::{PowerPreference, RenderCreation, WgpuSettings},
-        RenderPlugin,
-    },
+    app::FixedMain, asset::AssetMetaCheck, audio::{AudioPlugin, Volume}, prelude::*, render::{
+        settings::{PowerPreference, RenderCreation, WgpuSettings}, view::window, RenderPlugin
+    }
 };
 
 pub struct AppPlugin;
@@ -69,6 +65,9 @@ impl Plugin for AppPlugin {
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]
         app.add_plugins(dev_tools::plugin);
+
+        // Enable high refresh rate (TODO: configure?)
+        app.insert_resource(Time::<Fixed>::from_hz(170.0));
     }
 }
 
