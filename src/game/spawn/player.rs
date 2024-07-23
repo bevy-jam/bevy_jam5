@@ -56,24 +56,12 @@ fn spawn_player(
             transform: Transform::from_xyz(0., 1050., 0.),
             ..default()
         },
-        // SpriteBundle {
-        //     texture: image_assets.ducky.clone_weak(),
-        //     transform: Transform::from_scale(Vec2::splat(8.0).extend(1.0)),
-        //     ..Default::default()
-        // },
-        // TextureAtlas {
-        //     layout: texture_atlas_layout.clone(),
-        //     index: player_animation.get_atlas_index(),
-        // },
-        // player_animation,
         CharacterControllerBundle::new(Collider::circle(8.0 as Scalar)).with_movement(
-            2000.0,
-            0.9,
-            250.0,
+            3000.0,
+            0.99,
+            500.0,
             std::f32::consts::PI * 0.45,
         ),
-        // GravityScale(1.),
-        // GravityController(10000.0),
         StateScoped(Screen::Playing),
     ));
 }
