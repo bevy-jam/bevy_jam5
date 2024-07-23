@@ -30,8 +30,6 @@ pub struct SpawnPlayer;
 #[reflect(Component)]
 pub struct Player;
 
-#[derive(Component, Copy, Clone)]
-pub struct PlayerSpeed(pub f32);
 
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
@@ -52,7 +50,6 @@ fn spawn_player(
     commands.spawn((
         Name::new("Player"),
         Player,
-        PlayerSpeed(1.),
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(8.))),
             material: materials.add(Color::WHITE),
