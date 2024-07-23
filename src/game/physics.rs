@@ -13,7 +13,6 @@ const GRAVITY: f32 = 1000.0;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(PhysicsPlugins::new(FixedPostUpdate).with_length_unit(20.0)); //TODO: Needs to be adjusted probably
-    app.register_type::<GravityController>();
 
     // these may be a bit too strict, but this system runs once every frame so no need to worry
     app.add_systems(
@@ -25,9 +24,6 @@ pub(super) fn plugin(app: &mut App) {
             .before(TransformSystem::TransformPropagate),
     );
 }
-
-#[derive(Default, Debug, Component, Reflect)]
-pub struct GravityController(pub f32);
 
 fn update_gravity(
     mut gravity: ResMut<Gravity>,

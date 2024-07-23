@@ -6,7 +6,7 @@ use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle};
 
 use crate::game::character_controller::CharacterControllerBundle;
 use crate::{
-    game::{animation::PlayerAnimation, assets::ImageAssets, physics::GravityController},
+    game::{animation::PlayerAnimation, assets::ImageAssets},
     screen::Screen,
 };
 
