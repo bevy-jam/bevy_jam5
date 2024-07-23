@@ -15,12 +15,14 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(PhysicsPlugins::new(FixedPostUpdate).with_length_unit(20.0)); //TODO: Needs to be adjusted probably
     app.register_type::<GravityController>();
 
-    // app.add_systems(Update, apply_gravity.run_if(in_state(Screen::Playing)));
+    // these may be a bit too strict, but this system runs once every frame so no need to worry
     app.add_systems(
-        FixedPreUpdate,
+        FixedPostUpdate,
         update_gravity
             .in_set(AppSet::Update)
-            .run_if(in_state(Screen::Playing)),
+            .run_if(in_state(Screen::Playing))
+            .after(PhysicsSet::Sync)
+            .before(TransformSystem::TransformPropagate),
     );
 }
 
