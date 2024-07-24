@@ -1,6 +1,7 @@
 //! Spawn the main level by triggering other observers.
 
 use avian2d::{math::Scalar, prelude::*};
+use bevy::color::palettes::css::ORANGE_RED;
 use bevy::prelude::*;
 use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle};
 
@@ -24,29 +25,11 @@ fn spawn_level(
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn((
-        Name::new("Plane"),
+        Name::new("Bird"),
         SceneBundle {
-            scene: asset_server.load(GltfAssetLabel::Scene(0).from_asset("models/plane.glb")),
+            scene: asset_server.load(GltfAssetLabel::Scene(0).from_asset("models/bird.glb")),
             ..default()
         },
-    ));
-
-    // A flat plane to act as the ground
-    let ground_height = 100.0;
-    let ground_width = 1000.0;
-
-    commands.spawn((
-        Name::new("Ground"),
-        // MaterialMesh2dBundle {
-        //     mesh: Mesh2dHandle(meshes.add(Rectangle::new(ground_width, ground_height))),
-        //     material: materials.add(Color::srgba(0.5, 0.5, 0.5, 1.)),
-        //     transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        //     ..default()
-        // },
-        RigidBody::Static,
-        Collider::circle(1000.0 as Scalar),
-        Ground,
-        StateScoped(Screen::Playing),
     ));
 
     commands.spawn((

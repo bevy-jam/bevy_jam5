@@ -1,7 +1,11 @@
+use avian2d::prelude::{ColliderConstructor, RigidBody, VhacdParameters};
 use bevy::{
     color::palettes::css::{PURPLE, WHITE},
     prelude::*,
-    render::{mesh::PrimitiveTopology, render_asset::RenderAssetUsages},
+    render::{
+        mesh::{Indices, PrimitiveTopology},
+        render_asset::RenderAssetUsages,
+    },
     scene::SceneInstance,
     sprite::{MaterialMesh2dBundle, Mesh2d, Mesh2dHandle},
 };
@@ -9,7 +13,6 @@ use bevy::{
 pub(super) fn plugin(app: &mut App) {
     app.add_event::<SceneLoaded>();
     app.add_systems(Update, check_scene_loaded);
-
     app.observe(scene_to_2d_project);
 }
 
@@ -59,6 +62,7 @@ fn scene_to_2d_project(
 
             // Create 2D vertices (using X and Z components)
             let new_vertices: Vec<[f32; 3]> = vertices.iter().map(|v| [v[0], v[2], 0.0]).collect();
+            let new_vertices_2d = new_vertices.iter().map(|n| Vec2::new(n[0], n[1])).collect();
 
             println!("2D vertices: {:?}", new_vertices);
 
@@ -86,24 +90,71 @@ fn scene_to_2d_project(
             }
 
             // If the original mesh has indices, we can keep them as is
-            if let Some(indices) = mesh.indices() {
-                mesh2d = mesh2d.with_inserted_indices(indices.to_owned());
-            }
+            let Some(indices) = mesh.indices() else {
+                continue;
+            };
+            let indices_2d = transform_indices(&indices);
+
+            mesh2d = mesh2d.with_inserted_indices(indices.to_owned());
 
             // Add the new 2D mesh to the assets
             let mesh2d_handle = meshes.add(mesh2d);
 
             entity_commands.with_children(|parent| {
-                parent.spawn(MaterialMesh2dBundle {
-                    mesh: mesh2d_handle.into(),
-                    transform: Transform::from_scale(Vec3::splat(5.0)),
-                    material: materials.add(ColorMaterial {
-                        color: PURPLE.into(),
-                        ..Default::default()
-                    }),
-                    ..default()
-                });
+                parent.spawn((
+                    RigidBody::Static,
+                    ColliderConstructor::ConvexDecompositionWithConfig {
+                        vertices: new_vertices_2d,
+                        indices: indices_2d,
+                        params: VhacdParameters {
+                            concavity: 0.05,
+                            alpha: 0.05,
+                            beta: 0.05,
+                            resolution: 256,
+                            plane_downsampling: 1,
+                            convex_hull_downsampling: 4,
+                            fill_mode: avian2d::prelude::FillMode::FloodFill {
+                                detect_cavities: true,
+                                detect_self_intersections: true,
+                            },
+                            // fill_mode: avian2d::prelude::FillMode::SurfaceOnly,
+                            convex_hull_approximation: false,
+                            max_convex_hulls: 1024,
+                        },
+                    },
+                    MaterialMesh2dBundle {
+                        mesh: mesh2d_handle.into(),
+                        material: materials.add(ColorMaterial {
+                            color: PURPLE.into(),
+                            ..Default::default()
+                        }),
+                        ..default()
+                    },
+                ));
             });
         }
     }
+}
+
+fn transform_indices(indices: &Indices) -> Vec<[u32; 2]> {
+    // First, convert the indices to a Vec<u32> regardless of the original type
+    let indices_u32: Vec<u32> = match indices {
+        Indices::U16(vec) => vec.iter().map(|&i| i as u32).collect(),
+        Indices::U32(vec) => vec.clone(),
+    };
+
+    // Now, transform the flat list into pairs
+    // We're assuming that every two consecutive indices form a pair
+    indices_u32
+        .chunks(3) // Take chunks of 3 because we're converting from 3D to 2D
+        .map(|chunk| {
+            if chunk.len() >= 2 {
+                [chunk[0], chunk[1]] // Take the first two indices of each triangle
+            } else {
+                // Handle the case where we don't have enough indices
+                // This shouldn't happen if the input is valid, but we'll provide a default
+                [0, 0]
+            }
+        })
+        .collect()
 }
