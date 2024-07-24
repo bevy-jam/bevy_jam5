@@ -6,6 +6,7 @@ mod animation;
 pub mod assets;
 pub mod audio;
 mod character_controller;
+mod level_loading;
 mod movement;
 mod physics;
 pub mod spawn;
@@ -19,5 +20,6 @@ pub(super) fn plugin(app: &mut App) {
         movement::plugin,
         spawn::plugin,
         physics::plugin,
+        level_loading::plugin,
     ));
 }
