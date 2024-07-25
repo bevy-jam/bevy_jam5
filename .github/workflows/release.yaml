@@ -22,7 +22,7 @@ env:
   PACKAGE_NAME: bevy_jam5
   # The itch.io page to upload to, in the format: `user-name/project-name`.
   # Comment this out to disable.
-  ITCH_TARGET: kirmesbude/bevy-jam5
+  #ITCH_TARGET: 
   # The organization or author that owns the rights to the game.
   OWNER:
   # The path to the assets directory.
