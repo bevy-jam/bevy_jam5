@@ -64,8 +64,6 @@ fn scene_to_2d_project(
             let new_vertices: Vec<[f32; 3]> = vertices.iter().map(|v| [v[0], v[2], 0.0]).collect();
             let new_vertices_2d = new_vertices.iter().map(|n| Vec2::new(n[0], n[1])).collect();
 
-            println!("2D vertices: {:?}", new_vertices);
-
             // Create a new 2D mesh
             let mut mesh2d = Mesh::new(
                 PrimitiveTopology::TriangleList,
@@ -107,17 +105,13 @@ fn scene_to_2d_project(
                         vertices: new_vertices_2d,
                         indices: indices_2d,
                         params: VhacdParameters {
-                            concavity: 0.05,
+                            concavity: 0.005,
                             alpha: 0.05,
                             beta: 0.05,
                             resolution: 256,
-                            plane_downsampling: 1,
+                            plane_downsampling: 24,
                             convex_hull_downsampling: 4,
-                            fill_mode: avian2d::prelude::FillMode::FloodFill {
-                                detect_cavities: true,
-                                detect_self_intersections: true,
-                            },
-                            // fill_mode: avian2d::prelude::FillMode::SurfaceOnly,
+                            fill_mode: avian2d::prelude::FillMode::SurfaceOnly,
                             convex_hull_approximation: false,
                             max_convex_hulls: 1024,
                         },
