@@ -20,9 +20,9 @@ pub(super) fn plugin(app: &mut App) {
 
 fn enter_playing(mut commands: Commands, soundtrack_assets: Res<SoundtrackAssets>) {
     commands.trigger(SpawnLevel);
-    commands.trigger(PlaySoundtrack::Handle(
-        soundtrack_assets.gameplay.clone_weak(),
-    ));
+    // commands.trigger(PlaySoundtrack::Handle(
+    //     soundtrack_assets.gameplay.clone_weak(),
+    // ));
 }
 
 fn exit_playing(mut commands: Commands) {
