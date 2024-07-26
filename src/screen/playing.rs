@@ -60,15 +60,11 @@ fn zoom_camera(
     mut query: Query<&mut Transform, With<Camera>>,
     mut zoom_level: Local<ZoomLevel>,
 ) {
-    // todo: add lerp smoothing
-
     for event in input.read() {
         **zoom_level += event.y * 0.16;
     }
 
     **zoom_level = zoom_level.clamp(0.2, 10.0);
-
-    info!("zoom_level: {zoom_level:?}");
 
     if let Ok(mut camera) = query.get_single_mut() {
         let delta = Vec3::splat(**zoom_level) - camera.scale;
