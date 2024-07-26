@@ -13,13 +13,15 @@ use crate::{
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Loading), enter_loading);
 
-    app.add_loading_state(
-        LoadingState::new(Screen::Loading)
-            .continue_to_state(Screen::Title)
-            .load_collection::<ImageAssets>()
-            .load_collection::<SfxAssets>()
-            .load_collection::<SoundtrackAssets>(),
-    );
+    let state = LoadingState::new(Screen::Loading)
+        .continue_to_state(Screen::Title)
+        .load_collection::<ImageAssets>()
+        .load_collection::<SfxAssets>()
+        .load_collection::<SoundtrackAssets>();
+
+    let state = state.continue_to_state(Screen::Playing);
+
+    app.add_loading_state(state);
 }
 
 fn enter_loading(mut commands: Commands) {

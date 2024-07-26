@@ -53,7 +53,7 @@ fn spawn_player(
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(8.))),
             material: materials.add(Color::WHITE),
-            transform: Transform::from_xyz(0., 1050., 0.),
+            transform: Transform::from_xyz(0., 2100.0, 0.),
             ..default()
         },
         CharacterControllerBundle::new(Collider::circle(8.0 as Scalar)).with_movement(
@@ -71,18 +71,11 @@ fn camera_follow_player(
     mut camera_transform: Query<&mut Transform, With<Camera>>,
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
 ) {
-    //TODO: This breaks going back to the menu
-    //TODO: Also does not consider rotation
+    //TODO: This breaks going back to the menu (I'm not sure what it means)
     let player_transform = player_transform.single();
 
     let mut camera_transform = camera_transform.single_mut();
 
     camera_transform.translation.x = player_transform.translation.x;
     camera_transform.translation.y = player_transform.translation.y;
-    let mut angle = Vec3::Y.angle_between(player_transform.translation);
-    if player_transform.translation.x > 0. {
-        angle = std::f32::consts::PI * 2. - angle;
-    }
-
-    camera_transform.rotation = Quat::from_rotation_z(angle);
 }
