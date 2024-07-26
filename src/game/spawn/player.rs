@@ -53,12 +53,12 @@ fn spawn_player(
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Circle::new(8.))),
             material: materials.add(Color::WHITE),
-            transform: Transform::from_xyz(0., 2100.0, 0.),
+            transform: Transform::from_xyz(0., 20100.0, 0.),
             ..default()
         },
         CharacterControllerBundle::new(Collider::circle(8.0 as Scalar)).with_movement(
-            3000.0,
-            0.99,
+            2000.0,
+            0.98,
             500.0,
             std::f32::consts::PI * 0.45,
         ),
