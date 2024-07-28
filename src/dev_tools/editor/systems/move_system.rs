@@ -3,6 +3,8 @@ use bevy::{math::vec2, prelude::*};
 use crate::dev_tools::editor::{Object, SelectedObject};
 
 const MOVE_SPEED: f32 = 1.0;
+const ROTATE_SPEED: f32 = 0.01;
+const SCALE_SPEED: f32 = 0.01;
 
 pub fn move_with_keys(
     input: Res<ButtonInput<KeyCode>>,
@@ -32,11 +34,17 @@ pub fn move_with_keys(
         motion += vec2(0.0, -1.0);
     }
 
-    motion *= MOVE_SPEED;
-
     let Ok(mut transform) = object_query.get_mut(object) else {
         return;
     };
 
-    transform.translation += motion.extend(0.0);
+    if ctrl {
+        transform.rotate_local_z(motion.x * ROTATE_SPEED);
+
+        let delta_scale = 1.0 + motion.y * SCALE_SPEED;
+
+        transform.scale *= delta_scale;
+    } else {
+        transform.translation += (motion * MOVE_SPEED).extend(0.0);
+    }
 }

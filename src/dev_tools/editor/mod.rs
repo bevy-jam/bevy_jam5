@@ -34,6 +34,8 @@ use run_conditions::*;
 // [ ] multi select
 // [ ] spawn objects
 // [x] move objects
+// [x] rotate objects
+// [x] scale objects
 // [ ] edit nodes
 // [ ] undo
 // [ ]
