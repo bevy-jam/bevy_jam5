@@ -29,11 +29,13 @@ use run_conditions::*;
 // todo:
 // [x] render controls with gizmos
 // [ ] hower
+// [ ] display mode on screen
 // [x] select objects
-// [x] multi select
+// [ ] multi select
 // [ ] spawn objects
-// [ ] move objects
+// [x] move objects
 // [ ] edit nodes
+// [ ] undo
 // [ ]
 // [ ] box select
 // [ ] generate colliders
@@ -78,13 +80,6 @@ pub enum Object {
     Polyline,
     Sprite,
 }
-
-// #[derive(Resource, Reflect, Default)]
-// enum EditMode {
-//     #[default]
-//     Select,
-//     Move,
-// }
 
 #[derive(Resource, Default, Reflect)]
 pub struct SelectedObject(Option<Entity>);
