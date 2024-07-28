@@ -29,7 +29,7 @@ use run_conditions::*;
 // todo:
 // [x] render controls with gizmos
 // [ ] hower
-// [ ] display mode on screen
+// [x] display mode on screen
 // [x] select objects
 // [ ] multi select
 // [ ] spawn objects
