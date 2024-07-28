@@ -1,7 +1,9 @@
 use avian2d::prelude::*;
 use bevy::{math::vec2, prelude::*};
 
-use crate::dev_tools::editor::{PolyBundle, Polyline, SelectedObject};
+use crate::dev_tools::editor::{PolyBundle, Polyline};
+
+use super::SelectedObject;
 
 pub fn test_setup(mut commands: Commands) {
     let vertices = vec![vec2(0.0, 0.0), vec2(100.0, 100.0), vec2(160.0, 0.0)];
@@ -16,6 +18,7 @@ pub fn test_setup(mut commands: Commands) {
             PolyBundle::new(polyline.clone()).translated(vec2(-300.0, 20000.0)),
             collider.clone(),
             RigidBody::Static,
+            DebugRender::default().without_axes()
         ))
         .id();
 
@@ -25,5 +28,6 @@ pub fn test_setup(mut commands: Commands) {
         PolyBundle::new(polyline.clone()).translated(vec2(-300.0, 20200.0)),
         collider,
         RigidBody::Static,
+        DebugRender::default().without_axes()
     ));
 }

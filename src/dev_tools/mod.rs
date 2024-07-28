@@ -27,8 +27,8 @@ pub(super) fn plugin(app: &mut App) {
         ..default()
     });
 
-    let physics_gizmos = PhysicsGizmos::default().with_aabb_color(GRAY_600.with_alpha(0.7).into());
-    app.insert_gizmo_config(physics_gizmos, GizmoConfig::default());
+    // let physics_gizmos = PhysicsGizmos::default().with_aabb_color(GRAY_600.with_alpha(0.7).into());
+    // app.insert_gizmo_config(physics_gizmos, GizmoConfig::default());
 
     app.add_systems(
         Update,
@@ -51,5 +51,6 @@ fn inspector_ui(world: &mut World) {
             ui.label("Editor status: ");
             bevy_inspector::ui_for_resource::<State<EditorState>>(world, ui);
         });
+
     });
 }

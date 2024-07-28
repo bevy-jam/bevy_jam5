@@ -28,11 +28,12 @@ use run_conditions::*;
 
 // todo:
 // [x] render controls with gizmos
-// [ ] hower
+// [x] hower
 // [x] display mode on screen
 // [x] select objects
 // [ ] multi select
 // [ ] spawn objects
+// [ ] copy paste
 // [x] move objects
 // [x] rotate objects
 // [x] scale objects
@@ -56,14 +57,20 @@ impl Plugin for Editor {
         );
 
         app.init_resource::<SelectedObject>()
+            .init_resource::<HoveredObject>()
+            .init_resource::<WorldCursor>()
             .add_systems(Startup, test_setup)
             .add_systems(
                 Update,
                 (
+                    update_world_cursor.before(InputKind::Mouse),
                     mode_switch_system,
-                    select_system.run_if(in_state(EditorState::SelectMode)),
+                    cursor_object_select_system
+                        .run_if(in_state(EditorState::SelectMode))
+                        .in_set(InputKind::Mouse),
                     move_with_keys
-                        .run_if(in_state(EditorState::MoveMode).and_then(rc_object_selected)),
+                        .run_if(in_state(EditorState::MoveMode).and_then(rc_object_selected))
+                        .in_set(InputKind::Keyboard),
                 )
                     .in_set(EditorSet::HandleInput),
             )
@@ -78,22 +85,16 @@ pub enum EditorSet {
     Display,
 }
 
+#[derive(SystemSet, Hash, Debug, PartialEq, Eq, Clone)]
+pub enum InputKind {
+    Mouse,
+    Keyboard,
+}
+
 #[derive(Component, Reflect)]
 pub enum Object {
     Polyline,
     Sprite,
-}
-
-#[derive(Resource, Default, Reflect)]
-pub struct SelectedObject(Option<Entity>);
-
-impl SelectedObject {
-    pub fn select(&mut self, entity: Entity) {
-        self.0 = Some(entity)
-    }
-    pub fn deselect(&mut self) {
-        self.0 = None
-    }
 }
 
 // todo: move to helpers

@@ -1,66 +1,74 @@
 use avian2d::prelude::Collider;
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{input::mouse::MouseMotion, prelude::*, window::PrimaryWindow};
 
-use crate::dev_tools::editor::{select_closest_object, Object, SelectedObject, SELECT_DISTANCE};
+use crate::dev_tools::editor::{Object, WorldCursor, SELECT_DISTANCE};
 
-pub fn select_system(
+#[derive(Resource, Default, Reflect)]
+pub struct SelectedObject(pub Option<Entity>);
+
+impl SelectedObject {
+    pub fn select(&mut self, entity: Entity) {
+        self.0 = Some(entity)
+    }
+    pub fn deselect(&mut self) {
+        self.0 = None
+    }
+}
+
+#[derive(Resource, Default, Reflect)]
+pub struct HoveredObject(pub Option<Entity>);
+
+impl HoveredObject {
+    pub fn hover(&mut self, entity: Entity) {
+        self.0 = Some(entity)
+    }
+
+    pub fn clean(&mut self) {
+        self.0 = None
+    }
+}
+
+pub fn cursor_object_select_system(
+    mut hovered_object: ResMut<HoveredObject>,
     mut selected_object: ResMut<SelectedObject>,
-    camera_query: Query<(&Camera, &GlobalTransform)>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
+    mut mouse_motion: EventReader<MouseMotion>,
+    world_cursor: Res<WorldCursor>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut object_query: Query<(&Object, &GlobalTransform, &Collider, Entity)>,
 ) {
-    if let Ok(window) = window_query.get_single() {
-        let Some(cursor) = window.cursor_position() else {
-            return;
-        };
+    let left_mouse_pressed = mouse_button_input.just_pressed(MouseButton::Left);
+    let cursor_moved = mouse_motion.read().count() > 0;
 
-        let Ok((camera, camera_transform)) = camera_query.get_single() else {
-            return;
-        };
+    if !cursor_moved && !left_mouse_pressed {
+        return;
+    }
 
-        // this could be a separate system
-        let Some(world_cursor) = camera
-            .viewport_to_world(camera_transform, cursor)
-            .map(|ray| {
-                // info!("cursor world ray: {ray:?}"); // I'm curious what is the z coordinate of this, for me it's equal to 500.0...9
-                ray.origin.truncate()
-            })
-        else {
-            return;
-        };
+    hovered_object.clean();
 
-        if mouse_button_input.just_pressed(MouseButton::Left) {
-            // todo: deselect & select on the same click?
+    let Some(world_cursor) = world_cursor.0 else {
+        return;
+    };
 
-            if let Some(obj) = selected_object.0 {
-                if let Ok((polyline, global_transform, collider, _entity)) = object_query.get(obj) {
-                    // trick: transform mouse position, not the nodes
-                    // let local_cursor = inverse_transform(global_transform.compute_transform())
-                    //     .transform_point(world_cursor.extend(0.0));
+    let mut min_dist = f32::MAX;
+    let mut closest = None;
 
-                    // info!("{local_cursor}");
-
-                    let dist = collider.distance_to_point(
-                        global_transform,
-                        global_transform,
-                        world_cursor,
-                        false,
-                    );
-                    info!("dist to selected: {dist}");
-
-                    if dist > SELECT_DISTANCE {
-                        selected_object.deselect();
-                    }
-                    // Polyline2d
-                }
-            } else {
-                select_closest_object(
-                    object_query.transmute_lens::<(&GlobalTransform, &Collider, Entity)>(),
-                    world_cursor,
-                    selected_object,
-                )
-            }
+    // todo: optimize with aabb?
+    for (object, global_transform, collider, entity) in object_query.iter() {
+        let dist =
+            collider.distance_to_point(global_transform, global_transform, world_cursor, false);
+        // info!("dist({entity}) = {dist}");
+        if dist < min_dist && dist < SELECT_DISTANCE {
+            closest = Some(entity)
         }
+    }
+
+    if left_mouse_pressed {
+        if let Some(entity) = closest {
+            selected_object.select(entity);
+        } else {
+            selected_object.deselect();
+        }
+    } else {
+        hovered_object.0 = closest
     }
 }
