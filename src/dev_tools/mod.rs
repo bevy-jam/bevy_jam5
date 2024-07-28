@@ -3,7 +3,7 @@
 use avian2d::prelude::*;
 use bevy::{color::palettes::tailwind::GRAY_600, dev_tools::states::log_transitions, prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use editor::Editor;
+use editor::{Editor, EditorState};
 
 use crate::screen::Screen;
 
@@ -20,5 +20,8 @@ pub(super) fn plugin(app: &mut App) {
     app.insert_gizmo_config(group, GizmoConfig::default());
 
     // Print state transitions in dev builds
-    app.add_systems(Update, log_transitions::<Screen>);
+    app.add_systems(
+        Update,
+        (log_transitions::<Screen>, log_transitions::<EditorState>),
+    );
 }
