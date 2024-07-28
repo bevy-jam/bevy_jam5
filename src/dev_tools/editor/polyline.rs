@@ -4,6 +4,8 @@ use bevy::{
     prelude::*,
 };
 
+use super::{Object, SELECT_DISTANCE};
+
 #[derive(Component, Reflect, Debug, Clone)]
 pub struct Polyline {
     pub vertices: Vec<Vec2>,
@@ -35,3 +37,37 @@ impl IntoCollider<Collider> for Polyline {
         Collider::polyline(vertices, self.indices.clone().into())
     }
 }
+
+#[derive(Bundle)]
+pub struct PolyBundle {
+    pub object: Object,
+    pub polyline: Polyline,
+    pub transform: TransformBundle,
+}
+
+impl PolyBundle {
+    pub fn new(polyline: Polyline) -> Self {
+        Self {
+            object: Object::Polyline,
+            polyline: polyline,
+            transform: TransformBundle::default(),
+        }
+    }
+
+    pub fn translated(self, translation: Vec2) -> Self {
+        let Self {
+            object,
+            polyline,
+            mut transform,
+        } = self;
+
+        transform.local.translation = translation.extend(0.0);
+
+        Self {
+            object,
+            transform,
+            polyline,
+        }
+    }
+}
+

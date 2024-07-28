@@ -4,6 +4,7 @@ use avian2d::{
 };
 use bevy::{
     color::palettes::tailwind,
+    ecs::system::QueryLens,
     input::mouse::MouseButtonInput,
     math::{
         bounding::{Aabb2d, Bounded2d, BoundingCircle},
@@ -13,14 +14,22 @@ use bevy::{
     window::PrimaryWindow,
 };
 
+mod util;
+use util::*;
+
 mod polyline;
 use polyline::*;
+
+mod run_conditions;
+use run_conditions::*;
 
 // todo:
 // [x] render controls with gizmos
 // [ ] hower
 // [x] select objects
+// [x] multi select
 // [ ] spawn objects
+// [ ] move objects
 // [ ] edit nodes
 // [ ]
 // [ ] box select
@@ -33,8 +42,12 @@ pub struct Editor;
 impl Plugin for Editor {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.init_resource::<SelectedObject>()
+            .init_resource::<EditMode>()
             .add_systems(Startup, test_setup)
-            .add_systems(Update, (handle_mouse_input, draw_gizmos).chain());
+            .add_systems(
+                Update,
+                (select_system.run_if(rc_select_mode), draw_gizmos).chain(),
+            );
     }
 }
 
@@ -48,10 +61,7 @@ fn test_setup(mut commands: Commands) {
 
     let entity = commands
         .spawn((
-            PolyObject {
-                polyline: polyline.clone(),
-                transform: Transform::from_translation(vec3(-300.0, 20000.0, 0.0)).into(),
-            },
+            PolyBundle::new(polyline.clone()).translated(vec2(-300.0, 20000.0)),
             collider.clone(),
             RigidBody::Static,
         ))
@@ -60,42 +70,23 @@ fn test_setup(mut commands: Commands) {
     commands.insert_resource(SelectedObject(Some(entity)));
 
     commands.spawn((
-        PolyObject {
-            polyline,
-            transform: Transform::from_translation(vec3(-300.0, 20300.0, 0.0)).into(),
-        },
+        PolyBundle::new(polyline.clone()).translated(vec2(-300.0, 20200.0)),
         collider,
         RigidBody::Static,
     ));
 }
 
-#[derive(Bundle)]
-struct PolyObject {
-    pub polyline: Polyline,
-    pub transform: TransformBundle,
+#[derive(Component, Reflect)]
+enum Object {
+    Polyline,
+    Sprite,
 }
 
-impl PolyObject {
-    pub fn new(origin: Vec2) -> Self {
-        Self {
-            polyline: Polyline::new(origin),
-            transform: TransformBundle::default(),
-        }
-    }
-
-    pub fn translated(self, translation: Vec2) -> Self {
-        let Self {
-            polyline,
-            mut transform,
-        } = self;
-
-        transform.local.translation = translation.extend(0.0);
-
-        Self {
-            transform,
-            polyline,
-        }
-    }
+#[derive(Resource, Reflect, Default)]
+enum EditMode {
+    #[default]
+    Select,
+    Move,
 }
 
 #[derive(Resource, Default)]
@@ -110,13 +101,12 @@ impl SelectedObject {
     }
 }
 
-fn handle_mouse_input(
-    mut commands: Commands,
+fn select_system(
     mut selected_object: ResMut<SelectedObject>,
     camera_query: Query<(&Camera, &GlobalTransform)>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
-    polyobject_query: Query<(&Polyline, &GlobalTransform, &Collider, Entity)>,
+    mut object_query: Query<(&Object, &GlobalTransform, &Collider, Entity)>,
 ) {
     if let Ok(window) = window_query.get_single() {
         let Some(cursor) = window.cursor_position() else {
@@ -127,6 +117,7 @@ fn handle_mouse_input(
             return;
         };
 
+        // this could be a separate system
         let Some(world_cursor) = camera
             .viewport_to_world(camera_transform, cursor)
             .map(|ray| {
@@ -141,9 +132,7 @@ fn handle_mouse_input(
             // todo: deselect & select on the same click?
 
             if let Some(obj) = selected_object.0 {
-                if let Ok((polyline, global_transform, collider, _entity)) =
-                    polyobject_query.get(obj)
-                {
+                if let Ok((polyline, global_transform, collider, _entity)) = object_query.get(obj) {
                     // trick: transform mouse position, not the nodes
                     // let local_cursor = inverse_transform(global_transform.compute_transform())
                     //     .transform_point(world_cursor.extend(0.0));
@@ -164,38 +153,17 @@ fn handle_mouse_input(
                     // Polyline2d
                 }
             } else {
-                let mut min_dist = f32::MAX;
-                let mut closest = None;
-
-                // todo: optimize with aabb?
-                for (polyline, global_transform, collider, entity) in polyobject_query.iter() {
-                    let dist = collider.distance_to_point(
-                        global_transform,
-                        global_transform,
-                        world_cursor,
-                        false,
-                    );
-                    info!("dist({entity}) = {dist}");
-                    if dist < min_dist && dist < SELECT_DISTANCE {
-                        closest = Some(entity)
-                    }
-                }
-
-                if let Some(entity) = closest {
-                    selected_object.select(entity)
-                }
+                select_closest_object(
+                    object_query.transmute_lens::<(&GlobalTransform, &Collider, Entity)>(),
+                    world_cursor,
+                    selected_object,
+                )
             }
-
-            // if there is an object selected then try to find it's node/edge
-
-            // if node/edge is not found then try to find another object
-
-            // if nothing is found do nothing
         }
     }
 }
 
-// todo: highligh selected
+
 fn draw_gizmos(
     mut gizmos: Gizmos,
     polylines: Query<(&Polyline, &Transform, Entity)>,
@@ -230,9 +198,7 @@ fn draw_gizmos(
         gizmos.linestrip_2d(positions, color);
     }
 
-    for (collider_aabb) in collider_aabbs.iter() {
-
-    }
+    for (collider_aabb) in collider_aabbs.iter() {}
 }
 
 // todo: move to helpers
