@@ -5,16 +5,15 @@ use bevy::prelude::*;
 pub enum EditorState {
     #[default]
     SelectMode,
+    CreateMode,
     MoveMode,
     EditMode,
 }
 
-// pub enum EditModeTypes {
-//     Object,
-//     Node
-// }
-
-pub fn mode_switch_system(input: Res<ButtonInput<KeyCode>>, mut state: ResMut<NextState<EditorState>>) {
+pub fn mode_switch_system(
+    input: Res<ButtonInput<KeyCode>>,
+    mut state: ResMut<NextState<EditorState>>,
+) {
     let Some(kc) = input.get_just_pressed().next() else {
         return;
     };

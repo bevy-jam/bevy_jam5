@@ -2,17 +2,19 @@ use avian2d::{math::*, prelude::*};
 use bevy::{ecs::query::Has, prelude::*};
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_event::<MovementAction>().add_systems(
-        Update,
-        (
-            keyboard_input,
-            gamepad_input,
-            update_grounded,
-            movement,
-            apply_movement_damping,
+    app.add_event::<MovementAction>()
+        .add_systems(
+            Update,
+            (
+                keyboard_input,
+                gamepad_input,
+                update_grounded,
+                movement,
+                apply_movement_damping,
+            )
+                .chain(),
         )
-            .chain(),
-    ).register_type::<MovementBundle>();
+        .register_type::<MovementBundle>();
 }
 
 /// An event sent for a movement input action.

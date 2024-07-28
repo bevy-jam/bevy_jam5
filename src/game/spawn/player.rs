@@ -30,7 +30,6 @@ pub struct SpawnPlayer;
 #[reflect(Component)]
 pub struct Player;
 
-
 fn spawn_player(
     _trigger: Trigger<SpawnPlayer>,
     mut commands: Commands,

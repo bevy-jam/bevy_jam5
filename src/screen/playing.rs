@@ -45,8 +45,7 @@ fn return_to_title_screen(mut next_screen: ResMut<NextState<Screen>>) {
     next_screen.set(Screen::Title);
 }
 
-
-#[derive(Resource,Debug, Deref, DerefMut)]
+#[derive(Resource, Debug, Deref, DerefMut)]
 pub struct ZoomLevel(f32);
 
 impl Default for ZoomLevel {

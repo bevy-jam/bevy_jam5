@@ -55,12 +55,13 @@ impl Plugin for Editor {
 
         app.init_resource::<SelectedObject>()
             .add_systems(Startup, test_setup)
-            .add_systems(Update, mode_switch_system)
             .add_systems(
                 Update,
                 (
+                    mode_switch_system,
                     select_system.run_if(in_state(EditorState::SelectMode)),
-                    move_with_keys.run_if(in_state(EditorState::MoveMode).and_then(rc_object_selected)),
+                    move_with_keys
+                        .run_if(in_state(EditorState::MoveMode).and_then(rc_object_selected)),
                 )
                     .in_set(EditorSet::HandleInput),
             )
