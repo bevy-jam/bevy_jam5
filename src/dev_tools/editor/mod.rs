@@ -28,7 +28,7 @@ use run_conditions::*;
 
 // todo:
 // [x] render controls with gizmos
-// [x] hower
+// [x] hover
 // [x] display mode on screen
 // [x] select objects
 // [ ] multi select
