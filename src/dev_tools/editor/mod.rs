@@ -13,6 +13,9 @@ use bevy::{
     window::PrimaryWindow,
 };
 
+mod polyline;
+use polyline::*;
+
 // todo:
 // [x] render controls with gizmos
 // [ ] select objects
@@ -22,9 +25,9 @@ use bevy::{
 // [ ] box select
 // [ ] generate colliders
 
-pub struct PolyEditor;
+pub struct Editor;
 
-impl Plugin for PolyEditor {
+impl Plugin for Editor {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.init_resource::<SelectedObject>()
             .add_systems(Startup, test_setup)
@@ -40,52 +43,34 @@ fn test_setup(mut commands: Commands) {
 
     let collider = polyline.collider();
 
-    commands.spawn((
-        PolyObject {
-            polyline,
-            transform: Transform::from_translation(vec3(-300.0, 20000.0, 0.0)),
-        },
-        collider,
-        RigidBody::Static,
-    ));
+    let entity = commands
+        .spawn((
+            PolyObject {
+                polyline: polyline.clone(),
+                transform: Transform::from_translation(vec3(-300.0, 20000.0, 0.0)),
+            },
+            collider.clone(),
+            RigidBody::Static,
+        ))
+        .id();
+
+    commands.insert_resource(SelectedObject(Some(entity)));
+
+    commands
+        .spawn((
+            PolyObject {
+                polyline,
+                transform: Transform::from_translation(vec3(-300.0, 20300.0, 0.0)),
+            },
+            collider,
+            RigidBody::Static,
+        ));
 }
 
 #[derive(Bundle)]
 struct PolyObject {
     pub polyline: Polyline,
     pub transform: Transform,
-}
-
-#[derive(Component, Reflect, Debug, Clone)]
-struct Polyline {
-    vertices: Vec<Vec2>,
-    indices: Vec<[u32; 2]>,
-}
-
-impl Polyline {
-    pub fn new(pos: Vec2) -> Self {
-        Self {
-            vertices: vec![pos],
-            indices: vec![],
-        }
-    }
-}
-
-impl Bounded2d for Polyline {
-    fn aabb_2d(&self, translation: Vec2, rotation: impl Into<Rot2>) -> Aabb2d {
-        Aabb2d::from_point_cloud(translation, rotation, &self.vertices)
-    }
-
-    fn bounding_circle(&self, translation: Vec2, rotation: impl Into<Rot2>) -> BoundingCircle {
-        BoundingCircle::from_point_cloud(translation, rotation, &self.vertices)
-    }
-}
-
-impl IntoCollider<Collider> for Polyline {
-    fn collider(&self) -> Collider {
-        let vertices = self.vertices.iter().map(|v| v.adjust_precision()).collect();
-        Collider::polyline(vertices, self.indices.clone().into())
-    }
 }
 
 impl PolyObject {
@@ -125,7 +110,7 @@ fn handle_mouse_input(
         let Some(cursor) = window.cursor_position() else {
             return;
         };
-
+        
         if mouse_button_input.just_pressed(MouseButton::Left) {
             // todo: search for existing objects/nodes
 
@@ -135,7 +120,7 @@ fn handle_mouse_input(
                     let local_cursor =
                         inverse_transform(*transform).transform_point(cursor.extend(0.0));
 
-                    debug!("{local_cursor}");
+                    info!("{local_cursor}");
 
                     // Polyline2d
                 }
@@ -153,19 +138,31 @@ fn handle_mouse_input(
 }
 
 // todo: highligh selected
-fn draw_gizmos(mut gizmos: Gizmos, polylines: Query<(&Polyline, &Transform)>) {
-    for (polyline, transform) in polylines.iter() {
+fn draw_gizmos(
+    mut gizmos: Gizmos,
+    polylines: Query<(&Polyline, &Transform, Entity)>,
+    selected: Res<SelectedObject>,
+) {
+    for (polyline, transform, entity) in polylines.iter() {
         let positions: Vec<_> = polyline
             .vertices
             .iter()
             .map(|n| (*transform * n.extend(0.0)).truncate())
             .collect();
 
+        let highlight = selected.0 == Some(entity);
+
         for pos in positions.iter() {
             gizmos.circle_2d(*pos, 5.0, tailwind::GREEN_300);
         }
 
-        gizmos.linestrip_2d(positions, tailwind::GRAY_300);
+        let color = if highlight {
+            tailwind::AMBER_200
+        } else {
+            tailwind::GRAY_300
+        };
+
+        gizmos.linestrip_2d(positions, color);
     }
 }
 
