@@ -1,7 +1,7 @@
 use bevy::input::ButtonInput;
 use bevy::prelude::*;
 
-#[derive(States, Debug, Default, Hash, Eq, PartialEq, Clone)]
+#[derive(States, Debug, Default, Hash, Eq, PartialEq, Clone, Reflect)]
 pub enum EditorState {
     #[default]
     SelectMode,
@@ -25,3 +25,7 @@ pub fn mode_switch_system(
         _ => (),
     }
 }
+
+// pub fn display_current_mode(state: Res<State<EditorState>>, query: Query<Text>) {
+
+// }
