@@ -5,9 +5,15 @@ mod screen;
 mod ui;
 
 use bevy::{
-    app::FixedMain, asset::AssetMetaCheck, audio::{AudioPlugin, Volume}, prelude::*, render::{
-        settings::{PowerPreference, RenderCreation, WgpuSettings}, view::window, RenderPlugin
-    }
+    app::FixedMain,
+    asset::AssetMetaCheck,
+    audio::{AudioPlugin, Volume},
+    prelude::*,
+    render::{
+        settings::{PowerPreference, RenderCreation, WgpuSettings},
+        view::window,
+        RenderPlugin,
+    },
 };
 
 pub struct AppPlugin;

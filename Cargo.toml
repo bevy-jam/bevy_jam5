@@ -16,6 +16,7 @@ rand = "0.8"
 
 bevy-inspector-egui = { version = "0.25", optional = true }
 avian2d = "0.1"
+bevy_egui = "0.28.0"
 
 [features]
 default = [
